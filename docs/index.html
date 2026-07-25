@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LaunchLint — Local-First Pre-Launch Audit CLI</title>
+<meta name="description" content="A free, local-first CLI that audits your static sites for SEO, broken links, accessibility, and config issues before launch. No account. No telemetry. Runs in CI.">
+<link rel="canonical" href="https://chemico0531.github.io/launchlint/">
+<meta property="og:title" content="LaunchLint — Local-First Pre-Launch Audit CLI">
+<meta property="og:description" content="Free, local-first audit CLI for static sites. SEO, broken links, a11y, config. No account. Runs in CI.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://chemico0531.github.io/launchlint/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LaunchLint",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Cross-platform",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "description": "Local-first pre-launch audit CLI for static sites."
+}
+</script>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a1f29;
+    --fg: #e6edf3;
+    --muted: #7d8590;
+    --accent: #58a6ff;
+    --error: #f85149;
+    --warn: #d29922;
+    --info: #58a6ff;
+    --border: #30363d;
+  }
+  * { box-sizing: border-box; }
+  html { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 64px 24px;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin: 0 0 12px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .tagline {
+    color: var(--muted);
+    font-size: 1.125rem;
+    margin: 0 0 32px;
+  }
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .badge {
+    background: var(--panel);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    border: 1px solid var(--border);
+  }
+  .install {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-family: ui-monospace, "Cascadia Code", "JetBrains Mono", Menlo, monospace;
+    font-size: 0.95rem;
+    color: var(--fg);
+    overflow-x: auto;
+  }
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: ui-monospace, "Cascadia Code", "JetBrains Mono", Menlo, monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .sample { color: var(--fg); }
+  .sample .x { color: var(--error); }
+  .sample .w { color: var(--warn); }
+  .sample .i { color: var(--info); }
+  .sample .muted { color: var(--muted); }
+  h2 {
+    font-size: 1.5rem;
+    margin: 48px 0 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  ul.checks {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  ul.checks li {
+    padding: 12px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  ul.checks li strong { color: var(--accent); }
+  .cta {
+    display: inline-block;
+    background: var(--accent);
+    color: #0d1117;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 8px 8px 0 0;
+  }
+  .cta:hover { background: #79b8ff; }
+  .cta.secondary {
+    background: var(--panel);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>LaunchLint</h1>
+  <p class="tagline">Local-first pre-launch audit CLI for static sites. Catch SEO, broken links, accessibility, and config issues before launch.</p>
+
+  <div class="badges">
+    <span class="badge">MIT</span>
+    <span class="badge">Python 3.10+</span>
+    <span class="badge">No account</span>
+    <span class="badge">CI-ready</span>
+    <span class="badge">v0.1.0</span>
+  </div>
+
+  <h2>Install</h2>
+  <div class="install">uv tool install git+https://github.com/chemico0531/launchlint</div>
+  <p style="color: var(--muted); margin-top: 8px;">Then verify with <code style="background:var(--panel);padding:2px 6px;border-radius:4px;">launchlint --doctor</code></p>
+
+  <h2>Example output</h2>
+<pre><span class="sample">$ launchlint https://example.com
+
+<span class="muted">LaunchLint v0.1.0</span>
+<span class="muted">Target: https://example.com</span>
+<span class="muted">Checks: seo, links, a11y, config</span>
+<span class="muted">Duration: 1342ms</span>
+
+<span class="muted">============================================================</span>
+<span class="x">[X] ERROR  seo</span>
+<span class="muted">    </span>Missing meta description.
+<span class="w">[!] WARN   links  @ &lt;a href="/old-path"&gt;</span>
+<span class="muted">    </span>Broken link (404): https://example.com/old-path
+<span class="muted">    -&gt; Fix or remove the link before launch.</span>
+<span class="w">[!] WARN   a11y</span>
+<span class="muted">    </span>2 image(s) missing alt text.
+<span class="muted">    -&gt; Add alt="" (decorative) or descriptive alt.</span>
+<span class="muted">============================================================</span>
+  <span class="x">1 errors</span>  <span class="w">2 warnings</span>  0 info
+
+  No blockers, but review warnings before launch.</span></pre>
+
+  <h2>What it checks</h2>
+  <ul class="checks">
+    <li><strong>seo</strong> — title, meta description, h1, canonical, OG tags, JSON-LD</li>
+    <li><strong>links</strong> — HTTP 4xx/5xx on internal + outbound (HEAD + GET fallback)</li>
+    <li><strong>a11y</strong> — html lang, image alt, heading hierarchy, form labels, viewport</li>
+    <li><strong>config</strong> — robots.txt, sitemap.xml, sitemap reference in robots</li>
+  </ul>
+
+  <h2>Why not Lighthouse?</h2>
+  <p>Lighthouse is great. But it's <strong>online, slow, and noisy</strong>. Screaming Frog costs $259/year. Most "audit tools" are SaaS dashboards you can't run in CI. LaunchLint is local, instant, and designed to gate PRs.</p>
+
+  <h2>CI integration</h2>
+<pre>  - name: LaunchLint audit
+    run: |
+      pip install --user git+https://github.com/chemico0531/launchlint
+      launchlint https://staging.yoursite.com \
+        --fail-on error --json > ll.json || true
+  - name: Show report
+    run: cat ll.json</pre>
+
+  <h2>Get started</h2>
+  <a class="cta" href="https://github.com/chemico0531/launchlint">View on GitHub →</a>
+  <a class="cta secondary" href="https://github.com/chemico0531/launchlint#install">Install instructions</a>
+
+  <footer>
+    <p>MIT licensed · Built by <a href="https://github.com/chemico0531" style="color:var(--accent);">@chemico0531</a> · <a href="https://github.com/chemico0531/launchlint/issues" style="color:var(--accent);">Report an issue</a></p>
+    <p style="margin-top:8px;">No tracking, no telemetry, no account. Your URLs never leave your machine.</p>
+  </footer>
+
+</div>
+</body>
+</html>
