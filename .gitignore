@@ -1,0 +1,29 @@
+# Build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# uv cache
+.uv-cache/
+
+# Local audit outputs
+*.launchlint.json
+audit-reports/
+
+# Test artifacts
+.coverage
+htmlcov/
