@@ -12,14 +12,13 @@ from urllib.parse import urljoin, urlparse
 from .core import Issue, Severity
 
 
-AVAILABLE_CHECKS = ["seo", "links", "a11y", "config"]
+AVAILABLE_CHECKS = ["seo", "links", "a11y", "config", "ai"]
 
 
 # ---------- SEO -----------------------------------------------------------
 
 def check_seo(ctx: dict[str, Any]) -> Iterator[Issue]:
     soup = ctx["soup"]
-    final_url = ctx.get("final_url") or ctx["target"]
 
     title = soup.find("title")
     title_text = title.get_text(strip=True) if title else ""
@@ -113,7 +112,6 @@ def check_links(ctx: dict[str, Any]) -> Iterator[Issue]:
     seen: set[str] = set()
     broken = 0
     checked = 0
-    skipped_external = 0
     for a in anchors:
         href = a.get("href", "").strip()
         if not href or href.startswith(("mailto:", "tel:", "javascript:", "#")):
@@ -221,7 +219,7 @@ def check_a11y(ctx: dict[str, Any]) -> Iterator[Issue]:
         if not has_label and not inp.find_parent("label"):
             yield Issue(
                 "a11y", Severity.WARN,
-                f"Form input without associated <label>.",
+                "Form input without associated <label>.",
                 location=inp.get("name") or "<unnamed input>",
                 suggestion='Wrap with <label> or use for/id association.',
             )

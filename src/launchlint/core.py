@@ -11,9 +11,6 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-# Import checks lazily inside run_audit to avoid circular import
-# (checks.py imports Issue/Severity from this module).
-
 
 class Severity(str, Enum):
     ERROR = "error"
@@ -100,6 +97,11 @@ def run_audit(
     checks: list[str],
     timeout: float = 10.0,
     max_links: int = 50,
+    # AI check parameters
+    ai_key: str | None = None,
+    ai_model: str = "claude-haiku-4-5-20251001",
+    ai_max_findings: int = 30,
+    ai_budget: int = 100_000,
 ) -> AuditResult:
     """Run all requested checks against target. Returns AuditResult."""
     started = time.time()
@@ -113,7 +115,7 @@ def run_audit(
         result.meta.update({"kind": "path", **meta})
         final_url = None
 
-    # Lazy import — checks.py depends on Issue/Severity from this module.
+    # Lazy import to avoid circular dependency
     from .checks import run_check, AVAILABLE_CHECKS
 
     ctx = {
@@ -127,7 +129,12 @@ def run_audit(
         "session": requests.Session(),
     }
 
-    for check_name in checks:
+    # AI check is special — handled separately with its own gateway
+    ai_requested = "ai" in checks
+    regular_checks = [c for c in checks if c != "ai"]
+
+    # Run regular checks
+    for check_name in regular_checks:
         if check_name not in AVAILABLE_CHECKS:
             result.issues.append(
                 Issue(
@@ -150,5 +157,65 @@ def run_audit(
                 )
             )
 
+    # Run AI check if requested
+    if ai_requested:
+        _run_ai_check(ctx, result, ai_key, ai_model, ai_max_findings, ai_budget)
+
     result.duration_ms = int((time.time() - started) * 1000)
     return result
+
+
+def _run_ai_check(
+    ctx: dict[str, Any],
+    result: AuditResult,
+    ai_key: str | None,
+    ai_model: str,
+    ai_max_findings: int,
+    ai_budget: int,
+) -> None:
+    """Run the AI-powered check and append issues to result."""
+    import os
+
+    from .ai_gateway import AIGateway
+    from .ai_check import check_ai
+    from .billing_guard import BillingGuard
+
+    key = ai_key or os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        result.issues.append(
+            Issue(
+                check="ai",
+                severity=Severity.WARN,
+                message="AI check requested but no API key (--ai-key or ANTHROPIC_API_KEY).",
+                suggestion="Get an API key from console.anthropic.com or use --ai-disable.",
+            )
+        )
+        return
+
+    try:
+        gateway = AIGateway(api_key=key, model=ai_model)
+    except Exception as exc:
+        result.issues.append(
+            Issue(check="ai", severity=Severity.WARN, message=f"AI gateway init failed: {exc}")
+        )
+        return
+
+    billing = BillingGuard(max_findings=ai_max_findings, budget_tokens=ai_budget)
+    ctx["ai_max_findings"] = ai_max_findings
+
+    try:
+        for issue in check_ai(ctx, gateway, billing):
+            result.issues.append(issue)
+    except Exception as exc:
+        result.issues.append(
+            Issue(
+                check="ai",
+                severity=Severity.WARN,
+                message=f"AI check crashed: {exc}",
+                suggestion="Open an issue with the target URL.",
+            )
+        )
+        return
+
+    # Store billing summary in meta
+    result.meta["ai_billing"] = billing.summary()
